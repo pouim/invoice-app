@@ -1,17 +1,35 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { createAction } from "@/actions";
+import SubmitButton from "@/components/SubmitButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createAction } from "@/actions";
+import Form from "next/form";
+import { SyntheticEvent, useState } from "react";
 
-export default async function NewInvoice() {
+export default function NewInvoice() {
+  const [formState, setFormState] = useState("ready");
+
+  const handleOnSubmit = async (event: SyntheticEvent) => {
+    if (formState === "pending") {
+      event.preventDefault();
+      return;
+    }
+    setFormState("pending");
+  };
+
   return (
     <main className="flex flex-col justify-center h-full gap-6 max-w-5xl mx-auto">
       <div className="flex justify-between">
         <h1 className="text-3xl font-semibold">Create Invoice</h1>
       </div>
 
-      <form action={createAction} className="grid gap-4 max-w-xs">
+      <Form
+        action={createAction}
+        onSubmit={handleOnSubmit}
+        className="grid gap-4 max-w-xs"
+      >
         <div>
           <Label htmlFor="name" className="block mb-2 font-semibold text-sm">
             Billing Name
@@ -40,11 +58,9 @@ export default async function NewInvoice() {
           <Textarea id="description" name="description" />
         </div>
         <div>
-          <Button className="w-full font-semibold" type="submit">
-            Submit
-          </Button>
+          <SubmitButton />
         </div>
-      </form>
+      </Form>
     </main>
   );
 }
