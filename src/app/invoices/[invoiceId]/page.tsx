@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { notFound } from "next/navigation";
 
 export default async function Invoice({
   params,
@@ -24,14 +25,12 @@ export default async function Invoice({
     .where(eq(Invoices.id, invoiceId))
     .limit(1);
 
+  if (isNaN(invoiceId)) {
+    throw new Error("Invalid invoice ID");
+  }
+
   if (!invoice) {
-    return (
-      <main className="flex flex-col justify-center h-full text-center max-w-5xl mx-auto p-6">
-        <h1 className="text-3xl font-semibold text-red-500">
-          Invoice Not Found
-        </h1>
-      </main>
-    );
+    notFound();
   }
 
   const statusColors = {
