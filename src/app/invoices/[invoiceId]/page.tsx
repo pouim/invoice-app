@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { Invoices } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import clsx from "clsx";
 import {
   Table,
@@ -11,18 +11,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function Invoice({
   params,
 }: {
   params: { invoiceId: string };
 }) {
+  const { userId } = await auth();
+  if (!userId) return;
+
   const invoiceId = +params.invoiceId;
 
   const [invoice] = await db
     .select()
     .from(Invoices)
-    .where(eq(Invoices.id, invoiceId))
+    .where(and(eq(Invoices.id, invoiceId), eq(Invoices.userId, userId)))
     .limit(1);
 
   if (isNaN(invoiceId)) {

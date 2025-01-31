@@ -14,9 +14,17 @@ import Link from "next/link";
 import { db } from "@/db";
 import { Invoices } from "@/db/schema";
 import Container from "@/components/Container";
+import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 
 export default async function Dashboard() {
-  const results = await db.select().from(Invoices);
+  const { userId } = await auth();
+  if (!userId) return;
+
+  const results = await db
+    .select()
+    .from(Invoices)
+    .where(eq(Invoices.userId, userId));
 
   return (
     <main className="h-full">
