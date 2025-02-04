@@ -15,17 +15,29 @@ import { db } from "@/db";
 import { Customers, Invoices } from "@/db/schema";
 import Container from "@/components/Container";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
+import clsx from "clsx";
+import { statusColors } from "@/data/invoices";
 
 export default async function Dashboard() {
-  const { userId } = await auth();
+  const { userId, orgId } = await auth();
   if (!userId) return;
 
-  const results = await db
-    .select()
-    .from(Invoices)
-    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
-    .where(eq(Invoices.userId, userId));
+  let results;
+
+  if (orgId) {
+    results = await db
+      .select()
+      .from(Invoices)
+      .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
+      .where(eq(Invoices.organizationId, orgId));
+  } else {
+    results = await db
+      .select()
+      .from(Invoices)
+      .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
+      .where(and(eq(Invoices.userId, userId), isNull(Invoices.organizationId)));
+  }
 
   const invoices = results.map(({ invoices, customers }) => ({
     ...invoices,
@@ -74,7 +86,14 @@ export default async function Dashboard() {
                 </TableCell>
                 <TableCell className="text-center p-4">
                   <Link href={`/invoices/${id}`}>
-                    <Badge className="rounded-full">{status}</Badge>
+                    <Badge
+                      className={clsx(
+                        "rounded-full px-3 py-1 text-sm font-medium",
+                        statusColors[status]
+                      )}
+                    >
+                      {status}
+                    </Badge>
                   </Link>
                 </TableCell>
                 <TableCell className="text-right p-4">

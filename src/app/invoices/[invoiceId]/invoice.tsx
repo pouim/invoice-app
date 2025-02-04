@@ -6,12 +6,6 @@ import Container from "@/components/Container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,6 +14,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import {
   Table,
@@ -28,18 +28,11 @@ import {
   TableHead,
   TableRow,
 } from "@/components/ui/table";
-import { AVAILABLE_STATUSES } from "@/data/invoices";
-import { Customers, Invoices, Status } from "@/db/schema";
+import { AVAILABLE_STATUSES, statusColors } from "@/data/invoices";
+import { Customers, Invoices } from "@/db/schema";
 import clsx from "clsx";
 import { ChevronDown, Ellipsis, Trash2 } from "lucide-react";
 import { useOptimistic } from "react";
-
-const statusColors: Record<Status, string> = {
-  open: "bg-blue-500",
-  paid: "bg-green-600",
-  void: "bg-zinc-700",
-  uncollectible: "bg-red-600",
-};
 
 interface InvoiceProps {
   invoice: typeof Invoices.$inferSelect & {
