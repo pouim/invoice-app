@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AVAILABLE_STATUSES } from "@/data/invoices";
-import { Invoices, Status } from "@/db/schema";
+import { Customers, Invoices, Status } from "@/db/schema";
 import clsx from "clsx";
 import { ChevronDown, Ellipsis, Trash2 } from "lucide-react";
 import { useOptimistic } from "react";
@@ -42,7 +42,9 @@ const statusColors: Record<Status, string> = {
 };
 
 interface InvoiceProps {
-  invoice: typeof Invoices.$inferSelect;
+  invoice: typeof Invoices.$inferSelect & {
+    customer: typeof Customers.$inferSelect;
+  };
 }
 
 export default function Invoice({ invoice }: InvoiceProps) {
@@ -164,12 +166,14 @@ export default function Invoice({ invoice }: InvoiceProps) {
             </TableRow>
             <TableRow>
               <TableHead className="text-left p-4">Billing Name</TableHead>
-              <TableCell className="text-left p-4">Pouyan Ahmadpour</TableCell>
+              <TableCell className="text-left p-4">
+                {invoice.customer.name}
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableHead className="text-left p-4">Billing Email</TableHead>
               <TableCell className="text-left p-4">
-                ahmadpour.pouyan@gmail.com
+                {invoice.customer.email}
               </TableCell>
             </TableRow>
           </TableBody>

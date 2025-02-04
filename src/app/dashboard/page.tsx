@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/db";
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import Container from "@/components/Container";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
@@ -24,7 +24,13 @@ export default async function Dashboard() {
   const results = await db
     .select()
     .from(Invoices)
+    .innerJoin(Customers, eq(Invoices.customerId, Customers.id))
     .where(eq(Invoices.userId, userId));
+
+  const invoices = results.map(({ invoices, customers }) => ({
+    ...invoices,
+    customer: customers,
+  }));
 
   return (
     <main className="h-full">
@@ -51,7 +57,7 @@ export default async function Dashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.map(({ id, createTs, value, status }) => (
+            {invoices.map(({ id, createTs, value, status, customer }) => (
               <TableRow key={id}>
                 <TableCell className="text-left font-medium p-4">
                   <Link href={`/invoices/${id}`} className="font-semibold">
@@ -60,13 +66,11 @@ export default async function Dashboard() {
                 </TableCell>
                 <TableCell className="text-left p-4">
                   <Link href={`/invoices/${id}`} className="font-semibold">
-                    Pouyan Ahmadpour
+                    {customer.name}
                   </Link>
                 </TableCell>
                 <TableCell className="text-left p-4">
-                  <Link href={`/invoices/${id}`}>
-                    ahmadpour.pouyan@gmail.com
-                  </Link>
+                  <Link href={`/invoices/${id}`}>{customer.email}</Link>
                 </TableCell>
                 <TableCell className="text-center p-4">
                   <Link href={`/invoices/${id}`}>
